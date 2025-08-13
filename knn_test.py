@@ -74,7 +74,15 @@ clf = model.fit(X_train, y_train)
 raw_preds = clf.predict(X_new[['Spread', 'Total']])
 X_new['Prediction'] = ['Under' if p == 1 else 'Over' for p in raw_preds]
 
+# Get neighbors
 distances, indices = clf.kneighbors(X_new[['Spread', 'Total']])
+
+# Deterministic tie-breaking: sort by distance, then by index
+for i in range(len(indices)):
+    order = np.lexsort((indices[i], distances[i]))  # secondary sort by index
+    distances[i] = distances[i][order]
+    indices[i] = indices[i][order]
+
 
 confidence_percents = []
 avg_distances = []
